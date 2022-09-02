@@ -1,14 +1,18 @@
 import React from "react";
-import {Form, Card} from "react-bootstrap";
+import { Form, Card } from "react-bootstrap";
+import { AuthProvider } from "../contexts/AuthContext";
+import SignUp from "./SignUp";
 
 
 
 const App = (props) => {
-    return(
-        <>
-        <Card></Card>
-        <div>Already have an account? <a href="/login">Login</a></div>
-        </>
+    return (
+        <AuthProvider>
+            <React.Fragment>
+                <SignUp></SignUp>
+            </React.Fragment>
+        </AuthProvider>
+
     )
 }
 
