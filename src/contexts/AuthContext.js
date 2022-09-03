@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { auth } from '../firebase';
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, firestore } from '../firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
+import { doc, getDoc } from 'firebase/firestore';
+import { signOut } from "firebase/auth";
 
 
 
@@ -19,10 +21,23 @@ export function AuthProvider({ children }) {
         return createUserWithEmailAndPassword(auth, email, password);
     }
 
+    function logIn(email, password){
+        return signInWithEmailAndPassword(auth, email, password)
+    }
+
+    async function logOut(){
+        return signOut(auth);
+    }
+
+    async function getData(){
+        const userDoc = await getDoc(doc(firestore, 'users', currentUser.uid));
+        return userDoc;
+    }
+
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
-            setLoading(false);
             setCurrentUser(user);
+            setLoading(false);
         })
 
         return unsubscribe
@@ -30,7 +45,10 @@ export function AuthProvider({ children }) {
 
     const value = {
         currentUser,
-        signUp
+        signUp,
+        logIn,
+        getData,
+        logOut,
     }
 
     return (

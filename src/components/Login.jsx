@@ -1,19 +1,43 @@
 import React from "react";
 import styled from "styled-components";
+import { useRef } from "react";
+import { UseAuth } from "../contexts/AuthContext";
+import * as router from 'react-router-dom';
+import { Navigate } from "react-router-dom";
 
 const LogIn = (props) => {
+    const emailRef = useRef();
+    const passwordRef = useRef();
+
+    const { logIn, currentUser } = UseAuth();
+
+    async function handleSubmit(e){
+        e.preventDefault();
+
+        try {
+            let result = await logIn(emailRef.current.value, passwordRef.current.value);
+        } catch (e) {
+            console.log("error", e);
+        }
+    }
+
     return (
         <Container>
+        {console.log(router)}
+        {currentUser && <Navigate to="/"></Navigate>}
             <Card>
-                <Info>
-                    <Name>Email</Name>
-                    <Input></Input>
-                </Info>
-                <Info>
-                    <Name>Password</Name>
-                    <Input></Input>
-                </Info>
-                <Submit>Login</Submit>
+            <Form onSubmit={handleSubmit}>
+                    <Info>
+                        <Name >Email</Name>
+                        <Input type='email' ref={emailRef} required></Input>
+                    </Info>
+                    <Info>
+                        <Name >Password</Name>
+                        <Input type='password' ref={passwordRef} required></Input>
+                    </Info>
+                    <Submit>Login</Submit>
+                <p>Dont have an account? <a href='/signup'>Sign Up</a></p>
+                </Form>
             </Card>
         </Container>
     )
@@ -36,6 +60,14 @@ const Card = styled.div`
     justify-content: center;
     gap: 10px;
     padding: 2em 1em;
+`;
+
+const Form = styled.form`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 `;
 
 const Info = styled.div`

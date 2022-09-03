@@ -5,4 +5,7 @@ body{
     justify-content: center;
     height: 100vh;
     background: #e0e0e0;
+    margin: 0px;
+    box-sizing: border-box;
+    width: 100vw;
 }

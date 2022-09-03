@@ -3,8 +3,9 @@ import React from "react";
 import { useRef } from "react";
 import styled from "styled-components";
 import { UseAuth } from "../contexts/AuthContext";
-import { doc, setDoc  } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { firestore } from '../firebase';
+import { Navigate } from "react-router-dom";
 
 const SignUp = (props) => {
     const emailRef = useRef();
@@ -15,13 +16,7 @@ const SignUp = (props) => {
 
     let uid;
 
-    async function handleUser() {
-        console.log(await setDoc(doc(firestore, 'users', currentUser.uid), {
-            name: nameRef.current.value,
-            age: ageRef.current.value,
-            address: addressRef.current.value,
-        }));
-    }
+    
 
 
     const { signUp, currentUser } = UseAuth();
@@ -30,44 +25,47 @@ const SignUp = (props) => {
         e.preventDefault();
         try {
             let result = await signUp(emailRef.current.value, passwordRef.current.value);
-            console.log(await setDoc(doc(firestore, 'users', result.user.uid), {
+            await setDoc(doc(firestore, 'users', result.user.uid), {
                 name: nameRef.current.value,
                 age: ageRef.current.value,
                 address: addressRef.current.value,
-            }));
+            });
         } catch (e) {
             console.log("error", e);
         }
     }
-    
-    if(!currentUser){
-        
+
+    if (!currentUser) {
+
     }
     return (
         <Container>
+        {currentUser && <Navigate to="/"></Navigate>}
             <Card>
-                <Info>
-                    <Name>Name</Name>
-                    <Input ref={nameRef}></Input>
-                </Info>
-                <Info>
-                    <Name>Age</Name>
-                    <Input ref={ageRef}></Input>
-                </Info>
-                <Info>
-                    <Name>Address</Name>
-                    <Input ref={addressRef}></Input>
-                </Info>
-                <Info>
-                    <Name >Email</Name>
-                    <Input type='email' ref={emailRef}></Input>
-                </Info>
-                <Info>
-                    <Name >Password</Name>
-                    <Input type='password' ref={passwordRef}></Input>
-                </Info>
-                <Submit onClick={handleSubmit}>Sign Up</Submit>
-                <p>Already have an account? <a href='/login'>Login</a></p>
+                <Form onSubmit={handleSubmit}>
+                    <Info>
+                        <Name>Name</Name>
+                        <Input ref={nameRef} required></Input>
+                    </Info>
+                    <Info>
+                        <Name>Age</Name>
+                        <Input ref={ageRef} required></Input>
+                    </Info>
+                    <Info>
+                        <Name>Address</Name>
+                        <Input ref={addressRef} required></Input>
+                    </Info>
+                    <Info>
+                        <Name >Email</Name>
+                        <Input type='email' ref={emailRef} required></Input>
+                    </Info>
+                    <Info>
+                        <Name >Password</Name>
+                        <Input type='password' ref={passwordRef} required></Input>
+                    </Info>
+                    <Submit>Sign Up</Submit>
+                    <p>Already have an account? <a href='/login'>Login</a></p>
+                </Form>
             </Card>
         </Container>
     )
@@ -84,12 +82,16 @@ const Card = styled.div`
     background: #e0e0e0;
     box-shadow:  20px 20px 60px #bebebe,
                 -20px -20px 60px #ffffff;
+    
+    padding: 2em 1em;
+`;
+
+const Form = styled.form`
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 2em 1em;
 `;
 
 const Info = styled.div`
