@@ -1,3 +1,4 @@
+import { collection, doc, setDoc, onSnapshot, getDocs, query, orderBy } from 'firebase/firestore';
 import React from 'react'
 import { useState } from 'react';
 import { useEffect } from 'react';
@@ -5,35 +6,107 @@ import { useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { UseAuth } from '../contexts/AuthContext';
+import { firestore } from '../firebase'
 
 export default function DashBoard() {
     const [data, setData] = useState();
     const [timeData, setTimeData] = useState();
     const [currentTimeData, setCurrentTimeData] = useState();
     const [renderRows, setRenderRows] = useState();
+    const [loading, setLoading] = useState(false);
     const { currentUser, getData, logOut } = UseAuth();
 
     useEffect(() => {
+        async function getLogins() {
+            let timesCollectionsRef = collection(doc(firestore, 'users', currentUser.uid), 'logins')
+            timesCollectionsRef = query(timesCollectionsRef, orderBy('dateAdded'))
+            let timesRef = await getDocs(timesCollectionsRef)
+            let rows = []
+            timesRef.forEach((doc) => {
+                rows.push(doc.data())
+            })
+            console.log(rows)
+            setTimeData(rows);
+        }
+
         if (currentUser) {
             const userData = getData();
             userData.then((document) => {
                 setData(document.data());
+                getLogins();
             })
         }
     }, [])
 
+    function makeid(length) {
+        var result = '';
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var charactersLength = characters.length;
+        for (var i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() *
+                charactersLength));
+        }
+        return result;
+    }
 
     useEffect(() => {
-        console.log('he')
+        async function saveData() {
+            let timesRef = collection(doc(firestore, 'users', currentUser.uid), 'logins');
+            let timedocRef
+            try{
+                timedocRef = doc(timesRef, currentTimeData.id);
+            }catch{
+                addRow()
+                return;
+            }
+            console.log(timedocRef);
+            try {
+                console.log("saving...")
+                await setDoc(timedocRef, currentTimeData).then(()=>{
+                    console.log('saved!');
+                    alert('Data saved!')
+                })
+
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        if (renderRows) {
+            if (!checkRows()) {
+                if(loading) return;
+                try {
+                    saveData()
+                } catch (e){
+                    addRow();
+                }
+            }
+        }
+    }, [renderRows, checkRows, currentTimeData, currentUser, addRow, loading])
+
+
+    useEffect(() => {
         if (timeData && currentTimeData != null) {
             const newDatas = timeData;
             newDatas.pop();
-            console.log(newDatas)
             newDatas.push(currentTimeData);
             setTimeData(newDatas);
         }
-        renderTable()
-    }, [currentTimeData]);
+        if (timeData == null) return
+        const rows = [];
+        timeData.map((data, index) => {
+            rows.push(
+                <tr key={index}>
+                    <td>{data.date}</td>
+                    <td>{data.inAM}</td>
+                    <td>{data.outAM}</td>
+                    <td>{data.inPM}</td>
+                    <td>{data.outPM}</td>
+                </tr>
+            )
+        })
+        setRenderRows(rows)
+    }, [currentTimeData, timeData]);
 
 
     function getCurrentDate() {
@@ -56,11 +129,13 @@ export default function DashBoard() {
     function addRow() {
         const rows = timeData != null ? timeData : [];
         const rowData = {
+            id: makeid(20),
             date: null,
             inAM: null,
             outAM: null,
             inPM: null,
             outPM: null,
+            dateAdded: Date.now(),
         }
         setCurrentTimeData(rowData);
         rows.push(rowData);
@@ -114,9 +189,9 @@ export default function DashBoard() {
     function renderTable() {
         if (timeData == null) return
         const rows = [];
-        timeData.map((data) => {
+        timeData.map((data, index) => {
             rows.push(
-                <tr>
+                <tr key={index}>
                     <td>{data.date}</td>
                     <td>{data.inAM}</td>
                     <td>{data.outAM}</td>
@@ -129,6 +204,7 @@ export default function DashBoard() {
     }
 
     function checkRows() {
+        if (!currentTimeData) return
         const notfull = Object.values(currentTimeData).some((value) => {
             if (value == null) return true
         })
@@ -137,6 +213,9 @@ export default function DashBoard() {
 
     return (
         <Container>
+            {!currentUser &&
+                <Navigate to="/login"></Navigate>
+            }
             <Left>
                 <Profile>
                     <div className="info">
@@ -171,11 +250,18 @@ export default function DashBoard() {
                         <tbody>
                             {renderRows}
                         </tbody>
+
+                       
                     </Table>
+                    <div>
+                        </div>
                 </Timeline>
             </Right>
         </Container>
     )
+
+
+
 
 }
 

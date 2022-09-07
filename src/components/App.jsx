@@ -5,6 +5,7 @@ import { AuthProvider } from "../contexts/AuthContext";
 import SignUp from "./SignUp";
 import DashBoard from "./DashBoard";
 import LogIn from "./Login";
+import Home from "./Admin/Home";
 
 
 
@@ -17,6 +18,7 @@ const App = (props) => {
                         <Route exact path="/" element={<DashBoard />} />
                         <Route exact path="/signup" element={<SignUp />} />
                         <Route exact path="/login" element={<LogIn />} />
+                        <Route exact path="/admin" element={<Home />} />
                     </Routes>
                 </AuthProvider>
             </Router>

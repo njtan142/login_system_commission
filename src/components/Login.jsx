@@ -4,29 +4,34 @@ import { useRef } from "react";
 import { UseAuth } from "../contexts/AuthContext";
 import * as router from 'react-router-dom';
 import { Navigate } from "react-router-dom";
+import { useState } from "react";
 
 const LogIn = (props) => {
     const emailRef = useRef();
     const passwordRef = useRef();
-
+    const [error, setError] = useState();
     const { logIn, currentUser } = UseAuth();
 
-    async function handleSubmit(e){
+    async function handleSubmit(e) {
         e.preventDefault();
 
         try {
-            let result = await logIn(emailRef.current.value, passwordRef.current.value);
+            await logIn(emailRef.current.value, passwordRef.current.value);
         } catch (e) {
-            console.log("error", e);
+            setError(e.toString().split(":")[2]);
         }
     }
 
     return (
         <Container>
-        {console.log(router)}
-        {currentUser && <Navigate to="/"></Navigate>}
+            {console.log(router)}
+            {currentUser && <Navigate to="/"></Navigate>}
             <Card>
-            <Form onSubmit={handleSubmit}>
+                <Form onSubmit={handleSubmit}>
+                    {error && <Error>
+                        {error}
+                    </Error>}
+
                     <Info>
                         <Name >Email</Name>
                         <Input type='email' ref={emailRef} required></Input>
@@ -36,7 +41,7 @@ const LogIn = (props) => {
                         <Input type='password' ref={passwordRef} required></Input>
                     </Info>
                     <Submit>Login</Submit>
-                <p>Dont have an account? <a href='/signup'>Sign Up</a></p>
+                    <p>Dont have an account? <a href='/signup'>Sign Up</a></p>
                 </Form>
             </Card>
         </Container>
@@ -46,6 +51,16 @@ const LogIn = (props) => {
 
 const Container = styled.div`
     
+`;
+
+const Error = styled.div`
+    width: 80%;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e43a3a45;
+    border-radius: 5px;
 `;
 
 const Card = styled.div`
