@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, onSnapshot, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, doc, setDoc, onSnapshot, getDocs, query, orderBy, deleteDoc} from 'firebase/firestore';
 import React from 'react'
 import { useState } from 'react';
 import { useEffect } from 'react';
@@ -6,7 +6,8 @@ import { useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { UseAuth } from '../contexts/AuthContext';
-import { firestore } from '../firebase'
+import { firestore } from '../firebase';
+import QRCode from "react-qr-code";
 
 export default function DashBoard() {
     const [data, setData] = useState();
@@ -15,6 +16,8 @@ export default function DashBoard() {
     const [renderRows, setRenderRows] = useState();
     const [loading, setLoading] = useState(false);
     const { currentUser, getData, logOut } = UseAuth();
+    const [showQR, setShowQR] = useState(false);
+    const [qr, setQR] = useState();
 
     useEffect(() => {
         async function getLogins() {
@@ -56,15 +59,12 @@ export default function DashBoard() {
             try{
                 timedocRef = doc(timesRef, currentTimeData.id);
             }catch{
-                addRow()
                 return;
             }
             console.log(timedocRef);
             try {
-                console.log("saving...")
                 await setDoc(timedocRef, currentTimeData).then(()=>{
-                    console.log('saved!');
-                    alert('Data saved!')
+                    console.log('he');
                 })
 
             } catch (e) {
@@ -73,16 +73,12 @@ export default function DashBoard() {
         }
 
         if (renderRows) {
-            if (!checkRows()) {
-                if(loading) return;
                 try {
                     saveData()
                 } catch (e){
-                    addRow();
                 }
-            }
         }
-    }, [renderRows, checkRows, currentTimeData, currentUser, addRow, loading])
+    }, [renderRows, currentTimeData])
 
 
     useEffect(() => {
@@ -102,6 +98,8 @@ export default function DashBoard() {
                     <td>{data.outAM}</td>
                     <td>{data.inPM}</td>
                     <td>{data.outPM}</td>
+                    <td><button onClick={()=>{deleteData(index, data.id)}}>x</button></td>
+                    <td><button onClick={()=>{openQR(data.id)}}>Show</button></td>
                 </tr>
             )
         })
@@ -186,6 +184,10 @@ export default function DashBoard() {
         renderTable()
     }
 
+    async function deleteData(index, id){
+        await deleteDoc(doc(collection(doc(collection(firestore, 'users'),currentUser.uid),'logins'),id)).then(()=>{window.location.reload()});
+    }
+
     function renderTable() {
         if (timeData == null) return
         const rows = [];
@@ -197,6 +199,8 @@ export default function DashBoard() {
                     <td>{data.outAM}</td>
                     <td>{data.inPM}</td>
                     <td>{data.outPM}</td>
+                    <td><button onClick={()=>{deleteData(index, data.id)}}>x</button></td>
+                    <td><button onClick={()=>{openQR(data.id)}}>Show</button></td>
                 </tr>
             )
         })
@@ -209,6 +213,11 @@ export default function DashBoard() {
             if (value == null) return true
         })
         return notfull
+    }
+
+    function openQR(id){
+        setShowQR(true);
+        setQR(id);
     }
 
     return (
@@ -245,16 +254,20 @@ export default function DashBoard() {
                                 <th>Time Out</th>
                                 <th>Time In</th>
                                 <th>Time Out</th>
+                                <th></th>
+                                <th> ID </th>
                             </tr>
                         </thead>
                         <tbody>
                             {renderRows}
                         </tbody>
-
-                       
                     </Table>
-                    <div>
-                        </div>
+                    {showQR && <QRShow>
+                        <QRContainer>
+                        <QRCode value={qr}/>
+                        <QRHide onClick={()=>{setShowQR(false)}}>Close</QRHide>
+                        </QRContainer>
+                        </QRShow>}
                 </Timeline>
             </Right>
         </Container>
@@ -272,11 +285,11 @@ const Container = styled.div`
 `;
 
 const Left = styled.div`
-    width: 50vw;
+    width: 20vw;
 `;
 
 const Right = styled.div`
-    width: 50vw;
+    width: 80vw;
 `;
 
 const Profile = styled.div`
@@ -332,19 +345,86 @@ const Button = styled.button`
 `;
 
 const Timeline = styled.div`
-
+    padding: 1em;
 
 
 `;
 
 const Table = styled.table`
-    border: 1px solid black;
-    width: 100%;
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
 
-    th, tr, td{
-    border: 1px solid black;
+    th{
+        font-size: 1.3em;
     }
+
+    tr{
+        border: 10px solid #e0e0e0;
+        padding-left: 10px;
+       
+    }
+    
+    td{
+        padding: 10px;
+        border-radius: 4px;
+        border-left: 10px solid #e0e0e0;
+        background: #e0e0e0;
+        box-shadow: inset 5px 5px 4px #cacaca,
+                    inset -5px -5px 4px #f6f6f6;
+        width: 50px;
+        overflow-x: hidden;
+       
+    }
+    button{
+            display: block;
+            margin: 0 auto;
+            border-radius: 5px;
+            border: 1px solid gray;
+            padding: 5px 10px
+        }
 `;
 
 
+const QRShow = styled.div`
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #0000006a;
+`;
 
+const QRContainer = styled.div`
+    padding: 1em;
+    background-color: #e0e0e0;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 0.5em;
+    height: 350px;
+`;
+
+const QRHide = styled.button`
+    padding: 1em;
+    border: none;
+    background-color: #62b6ff;
+    height: 50px;
+    border-radius: 10px;
+
+    &:hover{
+        border: 1px solid #1070c4;
+    background-color: #41a6ff;
+
+    }
+
+    &:active{
+    background-color: #35a1ff;
+
+    }
+`;
