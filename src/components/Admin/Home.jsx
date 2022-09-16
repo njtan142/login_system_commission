@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { UseAuth } from "../../contexts/AuthContext";
 import { useEffect } from "react";
 import { useState } from "react";
-
+import QRScanner from "./components/QRScanner";
 
 const Home = (props) => {
     const [userList, setUserList] = useState();
@@ -42,6 +42,7 @@ const Home = (props) => {
     return (
         <Container>
             <Title>List of Users</Title>
+            <QRScanner></QRScanner>
 
             <UserList>
                 {renderedUsers}

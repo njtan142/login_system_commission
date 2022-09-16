@@ -99,7 +99,7 @@ export default function DashBoard() {
                     <td>{data.inPM}</td>
                     <td>{data.outPM}</td>
                     <td><button onClick={()=>{deleteData(index, data.id)}}>x</button></td>
-                    <td><button onClick={()=>{openQR(data.id)}}>Show</button></td>
+                    <td><button onClick={()=>{openQR(currentUser.uid +"-"+ data.id)}}>Show</button></td>
                 </tr>
             )
         })
@@ -200,7 +200,7 @@ export default function DashBoard() {
                     <td>{data.inPM}</td>
                     <td>{data.outPM}</td>
                     <td><button onClick={()=>{deleteData(index, data.id)}}>x</button></td>
-                    <td><button onClick={()=>{openQR(data.id)}}>Show</button></td>
+                    <td><button onClick={()=>{openQR(currentUser.uid +"-"+ data.id)}}>Show</button></td>
                 </tr>
             )
         })
