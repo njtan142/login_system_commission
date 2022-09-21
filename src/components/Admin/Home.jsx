@@ -1,14 +1,21 @@
 import styled from "styled-components";
 import { UseAuth } from "../../contexts/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useState } from "react";
 import QRScanner from "./components/QRScanner";
+import './home.css';
+import Users from "./navigation-components/Users";
+import Verify from "./navigation-components/Verify";
 
 const Home = (props) => {
     const [userList, setUserList] = useState();
     const [renderedUsers, setRenderedUsers] = useState();
 
     const { getUsers } = UseAuth();
+    const usersNavRef = useRef();
+    const verifyLoginNavRef = useRef();
+    const [currentNavigationSelection, setCurrentNavigationSelection] = useState();
+    const [currentNavigation, setCurrentNavigation] = useState();
     
     function renderList(){
         const rows = []
@@ -39,36 +46,78 @@ const Home = (props) => {
         renderList();
     },[userList])
 
+
+    function handleNavigationChange(ref){
+        setCurrentNavigationSelection(ref);
+        console.log(ref.current.innerText);
+        switch(ref.current.innerText){
+            case 'Users':
+                setCurrentNavigation(<Users />);
+                break;
+            case 'Verify Login':
+                setCurrentNavigation(<Verify />)
+                break;
+            default:
+                return;
+        }
+    }
+
+    useEffect(()=>{
+        console.log("hello");
+        console.log(currentNavigationSelection);
+        if(currentNavigationSelection == null){return;}
+        usersNavRef.current.classList.remove('selected');
+        verifyLoginNavRef.current.classList.remove('selected');
+        currentNavigationSelection.current.classList.add('selected');
+    },[currentNavigationSelection])
+
     return (
-        <Container>
-            <Title>List of Users</Title>
-            <QRScanner></QRScanner>
-
-            <UserList>
-                {renderedUsers}
-                {console.log(renderedUsers)}
-            </UserList>
-
+        <Container> 
+            <Navigation>
+                <Title>Login System</Title>
+                <Actions>
+                    <Action ref={usersNavRef} onClick={()=> handleNavigationChange(usersNavRef)}>Users</Action>
+                    <Action ref={verifyLoginNavRef} onClick={()=> handleNavigationChange(verifyLoginNavRef)}>Verify Login</Action>
+                </Actions>
+            </Navigation>
+            {currentNavigation && currentNavigation}
         </Container>
 
     )
 }
 
 const Container = styled.div`
-    width: 50vw;
-    height: 80vh;
-
-    margin: 0 auto;
-    margin-top: 5vh;
-    border-radius: 50px;
+    width: 100vw;
+    height: 100vh;
     background: #e0e0e0;
-    box-shadow:  20px 20px 60px #bebebe,
-                -20px -20px 60px #ffffff;
-    padding-top: 5em;
+    box-sizing: border-box;
+    display: flex;
+`;
+
+const Navigation = styled.div`
+    width: 25vw;
+    background-color: white;
+    height: 100%;
+    box-sizing: border-box;
 `;
 
 const Title = styled.h1`
     text-align: center;
+`;
+
+const Actions = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0px 1em;
+    gap: 1em;
+`;
+const Action = styled.button`
+    background-color: transparent;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.5em;
+    padding: 0.5em;
 `;
 
 const UserList = styled.div`

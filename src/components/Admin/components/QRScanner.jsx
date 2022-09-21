@@ -36,7 +36,6 @@ class QRScanner extends Component {
           onError={this.handleError}
           onScan={this.handleScan}
           />}
-        <p>{this.state.result && this.state.result.text}</p>
         {this.state.result && <TimeConfirmation uid={this.state.result.text.split("-")[0]} tid={this.state.result.text.split("-")[1]}></TimeConfirmation>}
       </div>
     )

@@ -6,6 +6,7 @@ import SignUp from "./SignUp";
 import DashBoard from "./DashBoard";
 import LogIn from "./Login";
 import Home from "./Admin/Home";
+import ImageProfile from "./ImageProfile";
 
 
 
@@ -19,6 +20,8 @@ const App = (props) => {
                         <Route exact path="/signup" element={<SignUp />} />
                         <Route exact path="/login" element={<LogIn />} />
                         <Route exact path="/admin" element={<Home />} />
+                        <Route exact path="/editProfile" element={<ImageProfile />} />
+
                     </Routes>
                 </AuthProvider>
             </Router>

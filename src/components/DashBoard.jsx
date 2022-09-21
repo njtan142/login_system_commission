@@ -6,8 +6,10 @@ import { useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { UseAuth } from '../contexts/AuthContext';
-import { firestore } from '../firebase';
+import { firestore, storage } from '../firebase';
+import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 import QRCode from "react-qr-code";
+import ClockView from './ClockView';
 
 export default function DashBoard() {
     const [data, setData] = useState();
@@ -18,6 +20,7 @@ export default function DashBoard() {
     const { currentUser, getData, logOut } = UseAuth();
     const [showQR, setShowQR] = useState(false);
     const [qr, setQR] = useState();
+    const [profileImage, setProfileImage] = useState();
 
     useEffect(() => {
         async function getLogins() {
@@ -219,6 +222,16 @@ export default function DashBoard() {
         setShowQR(true);
         setQR(id);
     }
+    
+    useEffect(()=>{
+        if(currentUser == null) return
+        const profileRef = ref(storage, currentUser.email)
+        getDownloadURL(profileRef).then((url)=>{
+            console.log(url);
+            setProfileImage(url);
+        });
+    },[currentUser])
+
 
     return (
         <Container>
@@ -230,13 +243,19 @@ export default function DashBoard() {
                     <div className="info">
                         User Information
                     </div>
-                    <div className="img"></div>
+                    <div className="img" onClick={()=>{
+                        window.location = "/editProfile"
+                    }}>
+                        {profileImage && <img src={profileImage}></img>}
+                    </div>
                     <div className="infos">
                         <div>{data && data.name}</div>
                         <div>{data && data.age}</div>
                         <div>{data && data.address}</div>
                     </div>
+                   
                 </Profile>
+                <ClockView></ClockView>
                 <Functions>
                     <Button onClick={logOut}>Logout</Button>
                     <Button onClick={() => { timeIn() }}>Time in</Button>
@@ -286,6 +305,9 @@ const Container = styled.div`
 
 const Left = styled.div`
     width: 20vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 `;
 
 const Right = styled.div`
@@ -295,7 +317,6 @@ const Right = styled.div`
 const Profile = styled.div`
     background-color: #ffffff45;
     border-top-right-radius: 20px;
-    height: 50vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -306,6 +327,21 @@ const Profile = styled.div`
         height: 120px;
         border-radius: 50%;
         background-color: white;
+        box-sizing: border-box;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .img:hover{
+        cursor: pointer;
+    }
+
+    img{
+        width: 100%;
+        border-radius: 50%;
+        box-sizing: border-box;
     }
 
     .info{
@@ -322,17 +358,17 @@ const Profile = styled.div`
 `;
 
 const Functions = styled.div`
-    height: 50vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3em;
+    justify-content: space-evenly;
+    flex-grow: 1;
 `;
 
 const Button = styled.button`
-    font-size: 1.5em;
-    padding: 0.2em 2em;
+    font-size: 150%;
+    padding: 0.2em 1em;
     border-radius: 10px;
     border: none;
 

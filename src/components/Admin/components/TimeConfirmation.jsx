@@ -1,5 +1,5 @@
 import React from 'react';
-import { collection, doc, setDoc, onSnapshot, getDocs, query, orderBy, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, onSnapshot, getDocs, query, orderBy, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../../../firebase';
 import { useEffect, useState } from 'react';
 import { async } from '@firebase/util';
@@ -26,6 +26,19 @@ export default function TimeConfirmation(props) {
         getTimeData();
 
     }, [props.tid, props.uid])
+    
+    async function handleConfirmation(confirmed){
+        let timesCollectionsRef = doc(collection(doc(firestore, 'users', props.uid), 'logins'), props.tid)
+        if(confirmed){
+            updateDoc(timesCollectionsRef, {verified: true})
+            alert("Login schedule confirmed!");
+            window.location.reload();
+        }else{
+            deleteDoc(timesCollectionsRef)
+            alert("Login schedule denied so it will also be deleted");
+            window.location.reload();
+        }
+    }
 
     if (timeData && name) return (
         <Container>
@@ -38,8 +51,8 @@ export default function TimeConfirmation(props) {
                 <div>Time Out Afternoon: {timeData.outPM}</div>
             </Infos>
             <Actions>
-                <Action>Accept</Action>
-                <Action>Deny</Action>
+                <Action onClick={()=>{handleConfirmation(true)}}>Accept</Action>
+                <Action onClick={()=>{handleConfirmation(false)}}>Deny</Action>
             </Actions>
         </Container>
     )
