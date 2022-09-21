@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, onSnapshot, getDocs, query, orderBy, deleteDoc} from 'firebase/firestore';
+import { collection, doc, setDoc, onSnapshot, getDocs, query, orderBy, deleteDoc } from 'firebase/firestore';
 import React from 'react'
 import { useState } from 'react';
 import { useEffect } from 'react';
@@ -59,14 +59,14 @@ export default function DashBoard() {
         async function saveData() {
             let timesRef = collection(doc(firestore, 'users', currentUser.uid), 'logins');
             let timedocRef
-            try{
+            try {
                 timedocRef = doc(timesRef, currentTimeData.id);
-            }catch{
+            } catch {
                 return;
             }
             console.log(timedocRef);
             try {
-                await setDoc(timedocRef, currentTimeData).then(()=>{
+                await setDoc(timedocRef, currentTimeData).then(() => {
                     console.log('he');
                 })
 
@@ -76,10 +76,10 @@ export default function DashBoard() {
         }
 
         if (renderRows) {
-                try {
-                    saveData()
-                } catch (e){
-                }
+            try {
+                saveData()
+            } catch (e) {
+            }
         }
     }, [renderRows, currentTimeData])
 
@@ -101,8 +101,8 @@ export default function DashBoard() {
                     <td>{data.outAM}</td>
                     <td>{data.inPM}</td>
                     <td>{data.outPM}</td>
-                    <td><button onClick={()=>{deleteData(index, data.id)}}>x</button></td>
-                    <td><button onClick={()=>{openQR(currentUser.uid +"-"+ data.id)}}>Show</button></td>
+                    <td><button onClick={() => { deleteData(index, data.id) }}>x</button></td>
+                    <td><button onClick={() => { openQR(currentUser.uid + "-" + data.id) }}>Show</button></td>
                 </tr>
             )
         })
@@ -187,8 +187,8 @@ export default function DashBoard() {
         renderTable()
     }
 
-    async function deleteData(index, id){
-        await deleteDoc(doc(collection(doc(collection(firestore, 'users'),currentUser.uid),'logins'),id)).then(()=>{window.location.reload()});
+    async function deleteData(index, id) {
+        await deleteDoc(doc(collection(doc(collection(firestore, 'users'), currentUser.uid), 'logins'), id)).then(() => { window.location.reload() });
     }
 
     function renderTable() {
@@ -202,8 +202,8 @@ export default function DashBoard() {
                     <td>{data.outAM}</td>
                     <td>{data.inPM}</td>
                     <td>{data.outPM}</td>
-                    <td><button onClick={()=>{deleteData(index, data.id)}}>x</button></td>
-                    <td><button onClick={()=>{openQR(currentUser.uid +"-"+ data.id)}}>Show</button></td>
+                    <td><button onClick={() => { deleteData(index, data.id) }}>x</button></td>
+                    <td><button onClick={() => { openQR(currentUser.uid + "-" + data.id) }}>Show</button></td>
                 </tr>
             )
         })
@@ -218,19 +218,19 @@ export default function DashBoard() {
         return notfull
     }
 
-    function openQR(id){
+    function openQR(id) {
         setShowQR(true);
         setQR(id);
     }
-    
-    useEffect(()=>{
-        if(currentUser == null) return
+
+    useEffect(() => {
+        if (currentUser == null) return
         const profileRef = ref(storage, currentUser.email)
-        getDownloadURL(profileRef).then((url)=>{
+        getDownloadURL(profileRef).then((url) => {
             console.log(url);
             setProfileImage(url);
         });
-    },[currentUser])
+    }, [currentUser])
 
 
     return (
@@ -243,7 +243,7 @@ export default function DashBoard() {
                     <div className="info">
                         User Information
                     </div>
-                    <div className="img" onClick={()=>{
+                    <div className="img" onClick={() => {
                         window.location = "/editProfile"
                     }}>
                         {profileImage && <img src={profileImage}></img>}
@@ -253,7 +253,7 @@ export default function DashBoard() {
                         <div>{data && data.age}</div>
                         <div>{data && data.address}</div>
                     </div>
-                   
+
                 </Profile>
                 <ClockView></ClockView>
                 <Functions>
@@ -283,10 +283,10 @@ export default function DashBoard() {
                     </Table>
                     {showQR && <QRShow>
                         <QRContainer>
-                        <QRCode value={qr}/>
-                        <QRHide onClick={()=>{setShowQR(false)}}>Close</QRHide>
+                            <QRCode value={qr} />
+                            <QRHide onClick={() => { setShowQR(false) }}>Close</QRHide>
                         </QRContainer>
-                        </QRShow>}
+                    </QRShow>}
                 </Timeline>
             </Right>
         </Container>
@@ -301,6 +301,11 @@ const Container = styled.div`
     display: flex;
     height: 100vh;
     box-sizing: border-box;
+
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+    }
 `;
 
 const Left = styled.div`
@@ -308,10 +313,27 @@ const Left = styled.div`
     height: 100vh;
     display: flex;
     flex-direction: column;
+    @media (max-width: 768px) {
+        width: 100vw;
+        box-sizing: border-box;
+        align-items: stretch;
+        gap: 1em;
+    }
 `;
 
 const Right = styled.div`
     width: 80vw;
+
+    @media (max-width: 768px) {
+        width: 100vw;
+        box-sizing: border-box;
+        min-height: 70vh;
+        padding: 1em;
+
+        table{
+            width: 300px;
+        }
+    }
 `;
 
 const Profile = styled.div`
@@ -321,6 +343,28 @@ const Profile = styled.div`
     flex-direction: column;
     align-items: center;
     gap: 20px;
+
+    @media (max-width: 768px) {
+        border-radius: 20px;
+        padding: 3em;
+        margin-top: 1em;
+        .info{
+            display: none;
+        }
+
+        .infos{
+            align-items: flex-start !important;
+        }
+
+        .infos>div{
+            font-size: 90%;
+        }
+
+        .img{
+            width: 50px;
+            height: 50px;
+        }
+    }
 
     .img{
         width: 120px;
@@ -364,6 +408,11 @@ const Functions = styled.div`
     justify-content: center;
     justify-content: space-evenly;
     flex-grow: 1;
+
+    @media (max-width: 768px) {
+        box-sizing: border-box;
+        gap: 10px;
+    }
 `;
 
 const Button = styled.button`
@@ -409,7 +458,6 @@ const Table = styled.table`
         box-shadow: inset 5px 5px 4px #cacaca,
                     inset -5px -5px 4px #f6f6f6;
         width: 50px;
-        overflow-x: hidden;
        
     }
     button{

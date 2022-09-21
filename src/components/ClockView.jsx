@@ -16,7 +16,7 @@ export default function ClockView() {
   return (
     <Container>
       {value && value.toDateString()}
-      <Time>{value && value.getHours()} : {value && value.getMinutes()} : {value && value.getSeconds()}</Time>
+      <Time>{value && value.getHours().toString().length === 1? "0" + value.getHours(): value.getHours()} : {value && value.getMinutes().toString().length === 1? "0" + value.getMinutes(): value.getMinutes()} : {value && value.getSeconds().toString().length === 1? "0" + value.getSeconds(): value.getSeconds()}</Time>
     </Container>
   );
 }
@@ -35,6 +35,10 @@ const Container = styled.div`
   font-size: 1.5em;
   font-weight: bold;
   font-family: 'Courier New', Courier, monospace;
+
+  @media (max-width: 768px) {
+        box-sizing: border-box;
+    }
 `;
 
 const Time = styled.div`
