@@ -103,6 +103,7 @@ export default function DashBoard() {
                     <td>{data.outPM}</td>
                     <td><button onClick={() => { deleteData(index, data.id) }}>x</button></td>
                     <td><button onClick={() => { openQR(currentUser.uid + "-" + data.id) }}>Show</button></td>
+                    <Verified>{data.verified == null? "NO": data.verified? "YES": "NO"}</Verified>
                 </tr>
             )
         })
@@ -131,7 +132,7 @@ export default function DashBoard() {
         const rows = timeData != null ? timeData : [];
         const rowData = {
             id: makeid(20),
-            date: null,
+            date: getCurrentDate(),
             inAM: null,
             outAM: null,
             inPM: null,
@@ -204,6 +205,7 @@ export default function DashBoard() {
                     <td>{data.outPM}</td>
                     <td><button onClick={() => { deleteData(index, data.id) }}>x</button></td>
                     <td><button onClick={() => { openQR(currentUser.uid + "-" + data.id) }}>Show</button></td>
+                    <Verified>{data.verified == null? "NO": data.verified? "YES": "NO"}</Verified>
                 </tr>
             )
         })
@@ -258,8 +260,6 @@ export default function DashBoard() {
                 <ClockView></ClockView>
                 <Functions>
                     <Button onClick={logOut}>Logout</Button>
-                    <Button onClick={() => { timeIn() }}>Time in</Button>
-                    <Button onClick={() => { timeOut() }}>Time out</Button>
                     <Button onClick={() => { addRow() }}>New Date</Button>
                 </Functions>
             </Left>
@@ -275,6 +275,7 @@ export default function DashBoard() {
                                 <th>Time Out</th>
                                 <th></th>
                                 <th> ID </th>
+                                <th>Verified</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -511,4 +512,8 @@ const QRHide = styled.button`
     background-color: #35a1ff;
 
     }
+`;
+
+const Verified = styled.td`
+    text-align: center;
 `;

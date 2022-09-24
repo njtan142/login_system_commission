@@ -21,7 +21,6 @@ const App = (props) => {
                         <Route exact path="/login" element={<LogIn />} />
                         <Route exact path="/admin" element={<Home />} />
                         <Route exact path="/editProfile" element={<ImageProfile />} />
-
                     </Routes>
                 </AuthProvider>
             </Router>
