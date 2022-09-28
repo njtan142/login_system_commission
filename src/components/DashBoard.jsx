@@ -39,6 +39,9 @@ export default function DashBoard() {
             const userData = getData();
             userData.then((document) => {
                 setData(document.data());
+                if(document.data().deleted){
+                    window.location = "/userDeleted"
+                }
                 getLogins();
             })
         }
@@ -260,6 +263,8 @@ export default function DashBoard() {
                 <ClockView></ClockView>
                 <Functions>
                     <Button onClick={logOut}>Logout</Button>
+                    <Button onClick={() => { timeIn() }}>Time In</Button>
+                    <Button onClick={() => { timeOut() }}>Time Out</Button>
                     <Button onClick={() => { addRow() }}>New Date</Button>
                 </Functions>
             </Left>

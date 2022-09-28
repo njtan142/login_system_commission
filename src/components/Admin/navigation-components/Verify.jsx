@@ -3,8 +3,6 @@ import styled from 'styled-components'
 import QRScanner from '../components/QRScanner'
 
 export default function Verify() {
-    
-
 
     return (
         <Container>

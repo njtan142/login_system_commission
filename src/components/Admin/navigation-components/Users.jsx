@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { firestore } from '../../../firebase';
-import { getDocs, collection, doc } from 'firebase/firestore';
+import { getDocs, collection, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { CSVLink, CSVDownload } from "react-csv";
+// import { admin } from '../../../firebase';
 
 
 
@@ -10,12 +11,13 @@ export default function Users() {
     const [userList, setUserList] = useState();
     const [userInfo, setUserInfo] = useState();
     const [userLogins, setUserLogins] = useState();
+    const [userUID, setUserUID] = useState();
     // const [csvData, setC]
 
 
     function showUserInfo(data) {
 
-        console.log(data.id)
+        setUserUID(data)
         getDocs(collection(doc(collection(firestore, 'users'), data.id), 'logins')).then((logins) => {
             const loginsList = logins.docs.map((doc) => { return doc.data() })
             setUserLogins(loginsList)
@@ -23,8 +25,10 @@ export default function Users() {
         setUserInfo(data.data())
     }
 
-    function downloadData() {
-
+    function deleteUser() {
+        const user = doc(collection(firestore, 'users'), userUID.id)
+        console.log(user)
+        updateDoc(user, {deleted: true})
     }
 
     useEffect(() => {
@@ -38,6 +42,8 @@ export default function Users() {
             const toUserList = []
             docs.forEach((doc) => {
                 const data = doc.data();
+                console.log(data.deleted)
+                if(data.deleted) return
                 toUserList.push(
                     <UserInfo onClick={() => { showUserInfo(doc) }}>
                         <h3>{data.name}</h3>
@@ -61,6 +67,7 @@ export default function Users() {
                     <Timeline>
                         {userLogins && <CSVLink data={userLogins} filename={userInfo.name + ".csv"}>Download Logins</CSVLink>}
                     </Timeline>
+                    <button onClick={()=>{deleteUser()}}>Delete User</button>
                 </UserInfos>
             }
 

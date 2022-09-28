@@ -4,12 +4,14 @@ import { firestore } from '../../../firebase';
 import { useEffect, useState } from 'react';
 import { async } from '@firebase/util';
 import styled from 'styled-components';
+import { useRef } from 'react';
 
 
 export default function TimeConfirmation(props) {
     console.log(props)
     const [timeData, setTimeData] = useState();
     const [name, setName] = useState();
+
 
     useEffect(() => {
         async function getTimeData() {
@@ -18,7 +20,7 @@ export default function TimeConfirmation(props) {
                 console.log(data.data());
                 setTimeData(data.data());
             })
-            await getDoc(doc(firestore, 'users', props.uid)).then((data)=>{
+            await getDoc(doc(firestore, 'users', props.uid)).then((data) => {
                 console.log(data.data());
                 setName(data.data().name)
             })
@@ -26,18 +28,46 @@ export default function TimeConfirmation(props) {
         getTimeData();
 
     }, [props.tid, props.uid])
-    
-    async function handleConfirmation(confirmed){
+
+    async function handleConfirmation(confirmed) {
         let timesCollectionsRef = doc(collection(doc(firestore, 'users', props.uid), 'logins'), props.tid)
-        if(confirmed){
-            updateDoc(timesCollectionsRef, {verified: true})
+        if (confirmed) {
+            updateDoc(timesCollectionsRef, { verified: true })
             alert("Login schedule confirmed!");
             window.location.reload();
-        }else{
+        } else {
             deleteDoc(timesCollectionsRef)
             alert("Login schedule denied so it will also be deleted");
             window.location.reload();
         }
+    }
+
+    function getCurrentTime() {
+        const d = new Date();
+        let datetext = d.toTimeString();
+        datetext = datetext.split(' ')[0];
+        return datetext
+    }
+
+    async function time(timein, am) {
+        let timesCollectionsRef = doc(collection(doc(firestore, 'users', props.uid), 'logins'), props.tid)
+        if (timein) {
+            if (am) {
+                updateDoc(timesCollectionsRef, { inAM: getCurrentTime() })
+            } else {
+                updateDoc(timesCollectionsRef, { inPM: getCurrentTime() })
+            }
+        } else {
+            if (am) {
+                updateDoc(timesCollectionsRef, { outAM: getCurrentTime() })
+            } else {
+                updateDoc(timesCollectionsRef, { outPM: getCurrentTime() })
+            }
+        }
+        await getDoc(timesCollectionsRef).then((data) => {
+            console.log(data.data());
+            setTimeData(data.data());
+        })
     }
 
     if (timeData && name) return (
@@ -51,8 +81,15 @@ export default function TimeConfirmation(props) {
                 <div>Time Out Afternoon: {timeData.outPM}</div>
             </Infos>
             <Actions>
-                <Action onClick={()=>{handleConfirmation(true)}}>Accept</Action>
-                <Action onClick={()=>{handleConfirmation(false)}}>Deny</Action>
+                <Action onClick={() => { time(true, true) }}>Time in AM</Action>
+                <Action onClick={() => { time(false, true) }}>Time out AM</Action>
+                <Action onClick={() => { time(true, false) }}>Time in PM</Action>
+                <Action onClick={() => { time(false, false) }}>Time out AM</Action>
+
+            </Actions>
+            <Actions>
+                <Action onClick={() => { handleConfirmation(true) }}>Accept</Action>
+                <Action onClick={() => { handleConfirmation(false) }}>Deny</Action>
             </Actions>
         </Container>
     )
@@ -66,6 +103,11 @@ const Infos = styled.div`
     
 `;
 
-const Actions = styled.div``;
+const Actions = styled.div`
+    padding: 0.25em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+`;
 
 const Action = styled.button``;
