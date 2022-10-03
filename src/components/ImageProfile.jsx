@@ -40,7 +40,7 @@ export default function ImageProfile() {
     function uploadProfile() {
         setLoading(true);
         if (image == null) return;
-        const profileRef = ref(storage, currentUser.email)
+        const profileRef = ref(storage, currentUser.uid)
         uploadString(profileRef, image, 'data_url').then((snapshot) => {
             console.log(snapshot)
             alert("Your profile has been uploaded!");
@@ -55,6 +55,7 @@ export default function ImageProfile() {
         <Container>
             <CenterModule>
                 {image && <img src={image}></img>}
+                {currentUser && console.log(currentUser)}
                 <Image ref={imageRef} type="file" accept="image/*" onChange={showImage}></Image>
                 {!loading && <Submit onClick={() => { uploadProfile() }}>Submit</Submit>}
             </CenterModule>

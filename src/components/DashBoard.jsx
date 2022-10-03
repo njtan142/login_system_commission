@@ -230,7 +230,7 @@ export default function DashBoard() {
 
     useEffect(() => {
         if (currentUser == null) return
-        const profileRef = ref(storage, currentUser.email)
+        const profileRef = ref(storage, currentUser.uid)
         getDownloadURL(profileRef).then((url) => {
             console.log(url);
             setProfileImage(url);

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { firestore } from '../../../firebase';
+import { firestore, storage } from '../../../firebase';
 import { getDocs, collection, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { CSVLink, CSVDownload } from "react-csv";
-// import { admin } from '../../../firebase';
+import { getDownloadURL, getStorage, ref } from 'firebase/storage';
+import { useRef } from 'react';
+import { createRef } from 'react';
 
 
 
@@ -11,9 +13,22 @@ export default function Users() {
     const [userList, setUserList] = useState();
     const [userInfo, setUserInfo] = useState();
     const [userLogins, setUserLogins] = useState();
-    const [userUID, setUserUID] = useState();
+    const [profileImage, setProfileImage] = useState();
+    const imageRefs = {}
+    const imageSources = {}
+
     // const [csvData, setC]
 
+    function getProfile(data) {
+        console.log(data);
+        const profileRef = ref(storage, data.id)
+        getDownloadURL(profileRef).then((url) => {
+            imageSources[data.data().name] = url;
+            console.log(imageRefs[data.data().name].current.src);
+            imageRefs[data.data().name].current.src = url;
+            console.log(imageRefs[data.data().name].current.src);
+        });
+    }
 
     function showUserInfo(data) {
         getDocs(collection(doc(collection(firestore, 'users'), data.id), 'logins')).then((logins) => {
@@ -26,7 +41,7 @@ export default function Users() {
     function deleteUser(userData) {
         const user = doc(collection(firestore, 'users'), userData.id)
         console.log(user)
-        updateDoc(user, { deleted: true }).then(()=>{
+        updateDoc(user, { deleted: true }).then(() => {
             window.location.reload();
         })
     }
@@ -36,42 +51,58 @@ export default function Users() {
 
     }, [])
 
+
     useEffect(() => {
-        const userCollectionsRef = collection(firestore, 'users');
-        getDocs(userCollectionsRef).then((docs) => {
-            const toUserList = []
-            docs.forEach((docu) => {
-                const data = docu.data();
-                console.log(data.deleted)
-                if (data.deleted) return
-                toUserList.push(
-                    <tr key={data.name}>
-                        <td>
-                            {data.name}
-                        </td>
-                        <td>
-                            {data.age}
-                        </td>
-                        <td>
-                            {data.address}
-                        </td>
-                        <td>
-                            <Timeline onClick={(e)=>{
-                                showUserInfo(docu)
-                                setUserLogins()
-                            }}>
-                               Download Logins
-                            </Timeline>
-                            
-                        </td>
-                        <td>
-                            <button onClick={()=>{deleteUser(docu)}}>Delete User</button>
-                        </td>
-                    </tr>
-                )
-            });
-            setUserList(toUserList);
-        })
+        function load() {
+            const userCollectionsRef = collection(firestore, 'users');
+            getDocs(userCollectionsRef).then((docs) => {
+                const toUserList = []
+                docs.forEach((docu) => {
+                    const data = docu.data();
+                    console.log(docu)
+                    if (data.deleted) return
+                    const profileRef = createRef()
+                    imageRefs[data.name] = profileRef;
+                    console.log(imageRefs)
+                    imageSources[data.name] = getProfile(docu)
+                    toUserList.push(
+                        <tr key={data.name}>
+                            <td>
+                                <img ref={imageRefs[data.name]} alt="" />
+                            </td>
+                            <td>
+                                {data.name}
+                            </td>
+                            <td>
+                                {data.age}
+                            </td>
+                            <td>
+                                {data.address}
+                            </td>
+                            <td>
+                                <Timeline onClick={(e) => {
+                                    showUserInfo(docu)
+                                    setUserLogins()
+                                }}>
+                                    Download Logins
+                                </Timeline>
+
+                            </td>
+                            <td>
+                                <button onClick={() => { deleteUser(docu) }}>Delete User</button>
+                            </td>
+                        </tr>
+                    )
+                });
+                setUserList(toUserList);
+            })
+        }
+        load();
+        console.log(imageRefs, imageSources)
+    }, [])
+
+
+    useEffect(() => {
 
     }, [])
 
@@ -80,6 +111,7 @@ export default function Users() {
             <table>
                 <thead>
                     <tr>
+                        <th>Profile</th>
                         <th>Name</th>
                         <th>Age</th>
                         <th>Address</th>
@@ -92,8 +124,8 @@ export default function Users() {
                 </tbody>
             </table>
             {
-                userLogins && 
-                    <CSVDownload filename={userInfo.name + '.csv'} data={userLogins} target="_self"/>
+                userLogins &&
+                <CSVDownload filename={userInfo.name + '.csv'} data={userLogins} target="_self" />
             }
         </Container>
     )
@@ -123,6 +155,10 @@ const Container = styled.div`
         background-color: white;
         border-radius: 5px;
         border-spacing: 10px;
+    }
+    
+    img{
+        width: 30px;
     }
 `;
 
