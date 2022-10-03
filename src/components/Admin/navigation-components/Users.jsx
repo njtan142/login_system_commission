@@ -16,8 +16,6 @@ export default function Users() {
 
 
     function showUserInfo(data) {
-
-        setUserUID(data)
         getDocs(collection(doc(collection(firestore, 'users'), data.id), 'logins')).then((logins) => {
             const loginsList = logins.docs.map((doc) => { return doc.data() })
             setUserLogins(loginsList)
@@ -28,7 +26,7 @@ export default function Users() {
     function deleteUser() {
         const user = doc(collection(firestore, 'users'), userUID.id)
         console.log(user)
-        updateDoc(user, {deleted: true})
+        updateDoc(user, { deleted: true })
     }
 
     useEffect(() => {
@@ -40,14 +38,34 @@ export default function Users() {
         const userCollectionsRef = collection(firestore, 'users');
         getDocs(userCollectionsRef).then((docs) => {
             const toUserList = []
-            docs.forEach((doc) => {
-                const data = doc.data();
+            docs.forEach((docu) => {
+                const data = docu.data();
                 console.log(data.deleted)
-                if(data.deleted) return
+                if (data.deleted) return
                 toUserList.push(
-                    <UserInfo onClick={() => { showUserInfo(doc) }}>
-                        <h3>{data.name}</h3>
-                    </UserInfo>
+                    <tr key={data.name}>
+                        <td>
+                            {data.name}
+                        </td>
+                        <td>
+                            {data.age}
+                        </td>
+                        <td>
+                            {data.address}
+                        </td>
+                        <td>
+                            <Timeline onClick={(e)=>{
+                                showUserInfo(docu)
+                                setUserLogins()
+                            }}>
+                               Download Logins
+                            </Timeline>
+                            
+                        </td>
+                        <td>
+                            <button>Delete User</button>
+                        </td>
+                    </tr>
                 )
             });
             setUserList(toUserList);
@@ -57,20 +75,24 @@ export default function Users() {
 
     return (
         <Container>
-            <UserList>
-                {userList && userList}
-            </UserList>
-            {userInfo &&
-                <UserInfos>
-                    <h2>{userInfo.name}</h2>
-                    <h3>{userInfo.age}</h3>
-                    <Timeline>
-                        {userLogins && <CSVLink data={userLogins} filename={userInfo.name + ".csv"}>Download Logins</CSVLink>}
-                    </Timeline>
-                    <button onClick={()=>{deleteUser()}}>Delete User</button>
-                </UserInfos>
+            <table>
+                <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>Age</td>
+                        <td>Address</td>
+                        <td>Logins</td>
+                        <td>Manage</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {userList && userList}
+                </tbody>
+            </table>
+            {
+                userLogins && 
+                    <CSVDownload filename={userInfo.name + '.csv'} data={userLogins} target="_self"/>
             }
-
         </Container>
     )
 }
