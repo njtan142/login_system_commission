@@ -23,10 +23,12 @@ export default function Users() {
         setUserInfo(data.data())
     }
 
-    function deleteUser() {
-        const user = doc(collection(firestore, 'users'), userUID.id)
+    function deleteUser(userData) {
+        const user = doc(collection(firestore, 'users'), userData.id)
         console.log(user)
-        updateDoc(user, { deleted: true })
+        updateDoc(user, { deleted: true }).then(()=>{
+            window.location.reload();
+        })
     }
 
     useEffect(() => {
@@ -63,7 +65,7 @@ export default function Users() {
                             
                         </td>
                         <td>
-                            <button>Delete User</button>
+                            <button onClick={()=>{deleteUser(docu)}}>Delete User</button>
                         </td>
                     </tr>
                 )
@@ -78,11 +80,11 @@ export default function Users() {
             <table>
                 <thead>
                     <tr>
-                        <td>Name</td>
-                        <td>Age</td>
-                        <td>Address</td>
-                        <td>Logins</td>
-                        <td>Manage</td>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Address</th>
+                        <th>Logins</th>
+                        <th>Manage</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -102,9 +104,26 @@ const Container = styled.div`
     box-sizing: border-box;
     gap: 1em;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: stretch;
+    align-items: center;
     width: 100%;
+    padding: 1em;
+
+
+    & > table{
+        width: 80%;
+        background-color: #0000003e;
+        border-spacing: 3px;
+        padding: 5px;
+        border-radius: 10px;
+    }
+
+    th, td {
+        text-align: center;
+        padding: 10px 15px;
+        background-color: white;
+        border-radius: 5px;
+        border-spacing: 10px;
+    }
 `;
 
 const UserInfo = styled.button`
