@@ -8,6 +8,7 @@ import LogIn from "./Login";
 import Home from "./Admin/Home";
 import ImageProfile from "./ImageProfile";
 import DeletedAccount from "./DeletedAccount";
+import ForgotPassword from "./ForgotPassword";
 
 
 
@@ -23,7 +24,7 @@ const App = (props) => {
                         <Route exact path="/admin" element={<Home />} />
                         <Route exact path="/editProfile" element={<ImageProfile />} />
                         <Route exact path="/userDeleted" element={<DeletedAccount />} />
-
+                        <Route exact path="/forgotPassword" element={<ForgotPassword />} />
                     </Routes>
                 </AuthProvider>
             </Router>

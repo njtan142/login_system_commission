@@ -39,6 +39,7 @@ const LogIn = (props) => {
                     <Info>
                         <Name >Password</Name>
                         <Input type='password' ref={passwordRef} required></Input>
+                        <p><a href="/forgotPassword">Forgot Password</a></p>
                     </Info>
                     <Submit>Login</Submit>
                     <p>Dont have an account? <a href='/signup'>Sign Up</a></p>
@@ -87,6 +88,10 @@ const Form = styled.form`
 
 const Info = styled.div`
     width: 150px;
+    p{
+        text-align: end;
+        margin-bottom: 0;
+    }
 `;
 
 const Name = styled.div`
