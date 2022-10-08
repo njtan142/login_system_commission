@@ -14,6 +14,10 @@ export default function Users() {
     const [userInfo, setUserInfo] = useState();
     const [userLogins, setUserLogins] = useState();
     const [profileImage, setProfileImage] = useState();
+    const [selectedUser, setSelectedUser] = useState();
+    const nameEditRef = useRef();
+    const ageEditRef = useRef();
+    const addressEditRef= useRef();
     const imageRefs = {}
     const imageSources = {}
 
@@ -68,7 +72,13 @@ export default function Users() {
                     toUserList.push(
                         <tr key={data.name}>
                             <td>
-                                <img ref={imageRefs[data.name]} alt="" />
+                                <img onClick={() => {
+                                    const profileRef = ref(storage, docu.id)
+                                    console.log(profileRef, docu.id);
+                                    getDownloadURL(profileRef).then((url) => {
+                                        setProfileImage(url);
+                                    });
+                                }} ref={imageRefs[data.name]} alt="" />
                             </td>
                             <td>
                                 {data.name}
@@ -90,6 +100,9 @@ export default function Users() {
                             </td>
                             <td>
                                 <button onClick={() => { deleteUser(docu) }}>Delete User</button>
+                                <button onClick={() => {
+                                    setSelectedUser(docu)
+                                }}>Edit User</button>
                             </td>
                         </tr>
                     )
@@ -127,6 +140,40 @@ export default function Users() {
                 userLogins &&
                 <CSVDownload filename={userInfo.name + '.csv'} data={userLogins} target="_self" />
             }
+
+            {profileImage &&
+                <ProfileView>
+                    <ImageContainer>
+                        <Close onClick={() => { setProfileImage(null) }}>X</Close>
+                        <img src={profileImage} alt="" />
+                    </ImageContainer>
+                </ProfileView>
+            }
+
+            {
+                selectedUser &&
+                <ProfileEdit>
+                    <FormContainer>
+                        <h2>Edit Profile</h2>
+                        <div><p>Name</p><input ref={nameEditRef} type="text" defaultValue={selectedUser.data().name} /></div>
+                        <div><p>Age</p><input ref={ageEditRef} type="text" defaultValue={selectedUser.data().age} /></div>
+                        <div><p>Address</p><input ref={addressEditRef} type="text" defaultValue={selectedUser.data().address} /></div>
+                        <button onClick={()=>{
+                            let data = {
+                                name: nameEditRef.current.value,
+                                age: ageEditRef.current.value,
+                                address: addressEditRef.current.value
+                            }
+                            let userDataRef = doc(collection(firestore, 'users'), selectedUser.id);
+                            updateDoc(userDataRef, data).then(()=>{
+                                window.location.reload();
+                            })
+                        }}>Submit</button>
+                    </FormContainer>
+                </ProfileEdit>
+            }
+
+
         </Container>
     )
 }
@@ -156,52 +203,13 @@ const Container = styled.div`
         border-radius: 5px;
         border-spacing: 10px;
     }
-    
-    img{
-        width: 30px;
-    }
-`;
 
-const UserInfo = styled.button`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0em 1.5em;
-    background-color: white;
-    border-radius: 10px;
-    height: min-content;
-
-    &:hover{
-        background-color: #f0f0f0;
-    }
-
-    &:active{
-        background-color: #A3A3A3;
+    td > button {
+        margin: 10px;
     }
     
-`;
-
-const UserList = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    padding: 1em;
-    box-sizing: border-box;
-    gap: 1em;
-`;
-
-const UserInfos = styled.div`
-    display: flex;
-    flex-direction: column;
-    padding: 1em;
-    box-sizing: border-box;
-    background-color: #f1f1f1;
-    height: 50vh;
-    align-items: flex-start;
-    gap: 10px   ;
-    
-    h2,h3{
-        padding: 0px;
-        margin: 0px;
+    td > img{
+        width: 50px;
     }
 `;
 
@@ -220,5 +228,71 @@ const Timeline = styled.button`
     a{
         color: black;
         text-decoration: none;
+    }
+`;
+
+const ProfileView = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #00000040;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const ImageContainer = styled.div`
+    width: 80%;
+    height: 80%;
+    background-color: white;
+    border-radius: 20px;
+    position: relative;
+    img{
+        width: 100%;
+    }
+`;
+
+const Close = styled.button`
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    font-size: 2.5em;
+    font-weight: bold;
+    width: 50px;
+    height: 50px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 1px solid gray;
+    color: red;
+`;
+
+const ProfileEdit = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #00000040;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const FormContainer = styled.div`
+    width: 400px;
+    height: max-content;
+    background-color: white;
+    border-radius: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    & > button{
+        padding: 10px;
+        margin: 15px;
+        width: 200px;
     }
 `;
