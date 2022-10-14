@@ -32,13 +32,15 @@ export default function TimeConfirmation(props) {
     async function handleConfirmation(confirmed) {
         let timesCollectionsRef = doc(collection(doc(firestore, 'users', props.uid), 'logins'), props.tid)
         if (confirmed) {
-            updateDoc(timesCollectionsRef, { verified: true })
-            alert("Login schedule confirmed!");
-            window.location.reload();
+            updateDoc(timesCollectionsRef, { verified: true }).then(()=>{
+                alert("Login schedule confirmed!");
+                window.location.reload();
+            })
         } else {
-            deleteDoc(timesCollectionsRef)
-            alert("Login schedule denied so it will also be deleted");
-            window.location.reload();
+            deleteDoc(timesCollectionsRef).then(()=>{
+                alert("Login schedule denied so it will also be deleted");
+                window.location.reload();
+            })
         }
     }
 

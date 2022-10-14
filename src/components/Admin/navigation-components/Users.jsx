@@ -24,13 +24,10 @@ export default function Users() {
     // const [csvData, setC]
 
     function getProfile(data) {
-        console.log(data);
         const profileRef = ref(storage, data.id)
         getDownloadURL(profileRef).then((url) => {
             imageSources[data.data().name] = url;
-            console.log(imageRefs[data.data().name].current.src);
             imageRefs[data.data().name].current.src = url;
-            console.log(imageRefs[data.data().name].current.src);
         });
     }
 
@@ -44,7 +41,6 @@ export default function Users() {
 
     function deleteUser(userData) {
         const user = doc(collection(firestore, 'users'), userData.id)
-        console.log(user)
         updateDoc(user, { deleted: true }).then(() => {
             window.location.reload();
         })
@@ -63,18 +59,15 @@ export default function Users() {
                 const toUserList = []
                 docs.forEach((docu) => {
                     const data = docu.data();
-                    console.log(docu)
                     if (data.deleted) return
                     const profileRef = createRef()
                     imageRefs[data.name] = profileRef;
-                    console.log(imageRefs)
                     imageSources[data.name] = getProfile(docu)
                     toUserList.push(
                         <tr key={data.name}>
                             <td>
                                 <img onClick={() => {
                                     const profileRef = ref(storage, docu.id)
-                                    console.log(profileRef, docu.id);
                                     getDownloadURL(profileRef).then((url) => {
                                         setProfileImage(url);
                                     });
@@ -111,7 +104,6 @@ export default function Users() {
             })
         }
         load();
-        console.log(imageRefs, imageSources)
     }, [])
 
 

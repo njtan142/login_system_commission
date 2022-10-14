@@ -9,6 +9,7 @@ import Home from "./Admin/Home";
 import ImageProfile from "./ImageProfile";
 import DeletedAccount from "./DeletedAccount";
 import ForgotPassword from "./ForgotPassword";
+import NotAdmin from "./Admin/NotAdmin";
 
 
 
@@ -25,6 +26,7 @@ const App = (props) => {
                         <Route exact path="/editProfile" element={<ImageProfile />} />
                         <Route exact path="/userDeleted" element={<DeletedAccount />} />
                         <Route exact path="/forgotPassword" element={<ForgotPassword />} />
+                        <Route exact path="/notAdmin" element={<NotAdmin />} />
                     </Routes>
                 </AuthProvider>
             </Router>

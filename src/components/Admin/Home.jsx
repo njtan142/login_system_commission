@@ -6,6 +6,9 @@ import QRScanner from "./components/QRScanner";
 import './home.css';
 import Users from "./navigation-components/Users";
 import Verify from "./navigation-components/Verify";
+import { doc, collection, getDoc } from "firebase/firestore";
+import { firestore } from "../../firebase";
+
 
 const Home = (props) => {
     const [userList, setUserList] = useState();
@@ -16,18 +19,10 @@ const Home = (props) => {
     const verifyLoginNavRef = useRef();
     const [currentNavigationSelection, setCurrentNavigationSelection] = useState();
     const [currentNavigation, setCurrentNavigation] = useState();
+
+    const {currentUser} = UseAuth();
     
-    function renderList(){
-        const rows = []
-        if(userList){
-            userList.map((user)=>{
-                rows.push(
-                    <div>{user.name}({user.age} yrs old)</div>
-                )
-            })
-        }
-        setRenderedUsers(rows);
-    }
+    
 
     useEffect(() => {
         console.log(getUsers())
@@ -40,11 +35,34 @@ const Home = (props) => {
         console.log(usersArr)
         setUserList(usersArr)
         })
-    }, []);
+    }, [getUsers]);
 
     useEffect(()=>{
+        function renderList(){
+            const rows = []
+            if(userList){
+                userList.map((user)=>{
+                    rows.push(
+                        <div>{user.name}({user.age} yrs old)</div>
+                    )
+                })
+            }
+            setRenderedUsers(rows);
+        }
         renderList();
     },[userList])
+    
+    useEffect(()=>{
+        const adminAccessRef = doc(collection(firestore, 'admins'), currentUser.email)
+        getDoc(adminAccessRef).then((data)=>{
+            console.log(data.data());
+            const access = data.data();
+            if(access == undefined || access["permitted"] == undefined || access["permitted"] == false){
+                console.log("Admin access denied");
+                window.location = "/notAdmin"
+            }
+        })
+    },[currentUser])
 
 
     function handleNavigationChange(ref){

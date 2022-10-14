@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import QrReader from 'react-qr-scanner'
+import styled from 'styled-components'
 import TimeConfirmation from './TimeConfirmation'
+import { useState } from 'react'
 
 class QRScanner extends Component {
   constructor(props){
@@ -12,6 +14,8 @@ class QRScanner extends Component {
 
     this.handleScan = this.handleScan.bind(this)
   }
+
+
   handleScan(data){
     if(data == null) return;
     console.log(data);
@@ -29,7 +33,7 @@ class QRScanner extends Component {
     }
 
     return(
-      <div>
+      <Container>
         {!this.state.result && <QrReader
           delay={this.state.delay}
           style={previewStyle}
@@ -37,9 +41,11 @@ class QRScanner extends Component {
           onScan={this.handleScan}
           />}
         {this.state.result && <TimeConfirmation uid={this.state.result.text.split("-")[0]} tid={this.state.result.text.split("-")[1]}></TimeConfirmation>}
-      </div>
+        </Container>
     )
   }
 }
 
 export default QRScanner;
+
+const Container = styled.div``;
