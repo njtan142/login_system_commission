@@ -8,6 +8,7 @@ import Users from "./navigation-components/Users";
 import Verify from "./navigation-components/Verify";
 import { doc, collection, getDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
+import Reports from "./navigation-components/Reports";
 
 
 const Home = (props) => {
@@ -17,8 +18,9 @@ const Home = (props) => {
     const { getUsers } = UseAuth();
     const usersNavRef = useRef();
     const verifyLoginNavRef = useRef();
-    const [currentNavigationSelection, setCurrentNavigationSelection] = useState();
-    const [currentNavigation, setCurrentNavigation] = useState();
+    const reportsRef = useRef();
+    const [currentNavigationSelection, setCurrentNavigationSelection] = useState(usersNavRef);
+    const [currentNavigation, setCurrentNavigation] = useState(<Users />);
 
     const {currentUser} = UseAuth();
     
@@ -75,6 +77,9 @@ const Home = (props) => {
             case 'Verify Login':
                 setCurrentNavigation(<Verify />)
                 break;
+            case 'Reports':
+                setCurrentNavigation(<Reports />)
+                break;
             default:
                 return;
         }
@@ -96,6 +101,7 @@ const Home = (props) => {
                 <Actions>
                     <Action ref={usersNavRef} onClick={()=> handleNavigationChange(usersNavRef)}>Users</Action>
                     <Action ref={verifyLoginNavRef} onClick={()=> handleNavigationChange(verifyLoginNavRef)}>Verify Login</Action>
+                    <Action ref={reportsRef} onClick={()=> handleNavigationChange(reportsRef)}>Reports</Action>
                 </Actions>
             </Navigation>
             {currentNavigation && currentNavigation}

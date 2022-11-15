@@ -89,7 +89,6 @@ export default function Users() {
                                 }}>
                                     Download Logins
                                 </Timeline>
-
                             </td>
                             <td>
                                 <button onClick={() => { deleteUser(docu) }}>Delete User</button>
@@ -146,6 +145,7 @@ export default function Users() {
                 selectedUser &&
                 <ProfileEdit>
                     <FormContainer>
+                        <Cancel onClick={()=>{setSelectedUser(null)}}>X</Cancel>
                         <h2>Edit Profile</h2>
                         <div><p>Name</p><input ref={nameEditRef} type="text" defaultValue={selectedUser.data().name} /></div>
                         <div><p>Age</p><input ref={ageEditRef} type="text" defaultValue={selectedUser.data().age} /></div>
@@ -169,6 +169,12 @@ export default function Users() {
         </Container>
     )
 }
+
+const Cancel = styled.button`
+    align-self: flex-end;
+    width: min-content !important;
+    position: absolute;
+`;
 
 const Container = styled.div`
     display: flex;
