@@ -7,8 +7,10 @@ import { getDocs, doc, collection, query } from 'firebase/firestore';
 
 export default function Reports() {
     const [users, setUsers] = useState([]);
+    const [userName, setUserName] = useState(" ");
     const [selectedUser, setSelectedUser] = useState([]);
-    const [selectedUserData, setSelectedUserData] = useState({total: 0})
+    const [selectedUserData, setSelectedUserData] = useState({ total: 0 })
+    const [toPrint, setToPrint] = useState();
 
 
     useEffect(() => {
@@ -27,7 +29,9 @@ export default function Reports() {
     }, [])
 
     function onSelect(event) {
-        const loginsRef = collection(doc(collection(firestore, 'users'), event.target.value), 'logins');
+        const loginsRef = collection(doc(collection(firestore, 'users'), event.target.value.split("/")[0]), 'logins');
+        console.log(event.target.innerHTML)
+        setUserName(event.target.value.split("/")[1])
         getDocs(loginsRef).then((logins) => {
             const results = []
             const info = { total: 0, }
@@ -62,7 +66,7 @@ export default function Reports() {
                     {
                         users.map((user) => {
                             return (
-                                <option value={user.id}>{user.name}</option>
+                                <option value={user.id + "/" + user.name}>{user.name}</option>
                             )
                         })
                     }
@@ -80,16 +84,16 @@ export default function Reports() {
                         <th>Duration</th>
                     </tr>
                     {
-                    selectedUser.map((user, index) => {
-                        return (
-                            <tr>
-                                <td>{index}</td>
-                                <td>{user.date}</td>
-                                <td>{user.time}</td>
-                                <td>{user.duration.toFixed(2) + " hrs"}</td>
-                            </tr>
-                        )
-                    })
+                        selectedUser.map((user, index) => {
+                            return (
+                                <tr>
+                                    <td>{index}</td>
+                                    <td>{user.date}</td>
+                                    <td>{user.time}</td>
+                                    <td>{user.duration.toFixed(2) + " hrs"}</td>
+                                </tr>
+                            )
+                        })
                     }
                     <tr>
                         <td>Total Rendered Time</td>
@@ -99,9 +103,87 @@ export default function Reports() {
                     </tr>
                 </table>
             </Logins>
+            <PrintButton onClick={()=>{setToPrint("sdfa")}}>Print</PrintButton>
+            {
+                toPrint &&
+                <Print>
+                    <table>
+                        <tr>
+                            <td>User:</td>
+                            <td>{userName}</td>
+                        </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Duration</th>
+                        </tr>
+                        {
+                            selectedUser.map((user, index) => {
+                                return (
+                                    <tr>
+                                        <td>{index}</td>
+                                        <td>{user.date}</td>
+                                        <td>{user.time}</td>
+                                        <td>{user.duration.toFixed(2) + " hrs"}</td>
+                                    </tr>
+                                )
+                            })
+                        }
+                        <tr>
+                            <td>Total Rendered Time</td>
+                            <td></td>
+                            <td></td>
+                            <td>{selectedUserData.total.toFixed(3) + " hrs"}</td>
+                        </tr>
+                    </table>
+                </Print>
+            }
         </Container>
     )
 }
+
+const PrintButton = styled.button`
+    display: block;
+    margin: 5em auto;
+    padding: 0.5em 2em;
+    font-size: 1.5em;
+    background-color: white;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+
+    &:hover{
+        background-color: #f3f3f3;
+    }
+`;
+
+const Print = styled.div`
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    overflow-y: scroll;
+    top: 0;
+    left: 0;
+    background-color: gray;
+    padding: 3em;
+    table{
+        width: 80%;
+        margin: auto;
+        gap: 0px;
+        border-spacing: 0px;
+        background-color: white;
+        padding: 3px;
+        border-radius: 5px;
+    }
+
+    td, th{
+        text-align: center;
+        padding: 10px;
+        background-color: white;
+        /* border: 1px solid gray; */
+    }
+`;
 
 const UserContainer = styled.div`
     display: flex;
