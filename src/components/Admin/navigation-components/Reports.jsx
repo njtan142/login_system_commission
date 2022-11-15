@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import styled from 'styled-components'
 import { firestore } from '../../../firebase';
-import { getDocs, doc, collection, query } from 'firebase/firestore';
+import { getDocs, doc, collection, query, orderBy } from 'firebase/firestore';
 
 export default function Reports() {
     const [users, setUsers] = useState([]);
@@ -29,19 +29,23 @@ export default function Reports() {
     }, [])
 
     function onSelect(event) {
-        const loginsRef = collection(doc(collection(firestore, 'users'), event.target.value.split("/")[0]), 'logins');
-        console.log(event.target.innerHTML)
+        let loginsRef = collection(doc(collection(firestore, 'users'), event.target.value.split("/")[0]), 'logins');
+        loginsRef = query(loginsRef, orderBy('dateAdded', 'asc'))
         setUserName(event.target.value.split("/")[1])
         getDocs(loginsRef).then((logins) => {
             const results = []
             const info = { total: 0, }
             logins.forEach((login) => {
                 const data = login.data();
-                const inHour = getHours(data.inAM);
-                const outHour = getHours(data.outAM);
-                const duration = outHour - inHour;
+                const inHour = getHours(data.outAM) - getHours(data.inAM);
+                const outHour = getHours(data.outPM) - getHours(data.inPM);
+                const duration = outHour + inHour;
+                const time = data.inAM + " - " + data.outAM + " | " + data.inPM + " - " + data.outPM
                 info.total += duration;
-                results.push({ date: data.date, time: data.inAM + " - " + data.outPM, duration: duration })
+                if(isNaN(duration)){
+                    return;
+                }
+                results.push({ date: data.date, time: time, duration: duration })
             })
             setSelectedUser(results)
             console.log(info);
@@ -99,7 +103,7 @@ export default function Reports() {
                         <td>Total Rendered Time</td>
                         <td></td>
                         <td></td>
-                        <td>{selectedUserData.total.toFixed(3) + " hrs"}</td>
+                        <td>{selectedUserData.total.toFixed(2) + " hrs"}</td>
                     </tr>
                 </table>
             </Logins>
