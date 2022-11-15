@@ -83,13 +83,6 @@ export default function TimeConfirmation(props) {
                 <div>Time Out Afternoon: {timeData.outPM}</div>
             </Infos>
             <Actions>
-                <Action onClick={() => { time(true, true) }}>Time in AM</Action>
-                <Action onClick={() => { time(false, true) }}>Time out AM</Action>
-                <Action onClick={() => { time(true, false) }}>Time in PM</Action>
-                <Action onClick={() => { time(false, false) }}>Time out AM</Action>
-
-            </Actions>
-            <Actions>
                 <Action onClick={() => { handleConfirmation(true) }}>Accept</Action>
                 <Action onClick={() => { handleConfirmation(false) }}>Deny</Action>
             </Actions>
